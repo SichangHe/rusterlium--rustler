@@ -87,6 +87,13 @@ impl From<InitMacroInput> for proc_macro2::TokenStream {
             static mut NIF_ENTRY: Option<rustler::codegen_runtime::DEF_NIF_ENTRY> = None;
             let nif_funcs: Box<[_]> =
                 rustler::codegen_runtime::inventory::iter::<rustler::Nif>()
+                .map(|nif| {
+                    let ref_string = unsafe {
+                        std::ffi::CStr::from_ptr(nif.name).to_str().unwrap()
+                    };
+                    eprintln!("name={}, arity={}, flags={}", ref_string, nif.arity, nif.flags);
+                    nif
+                })
                 .map(rustler::Nif::get_def)
                 .collect();
 
